@@ -71,24 +71,22 @@ public class Connect {
     public String retornarNombre(String user){
         
         conn = connectDB();
-        String query = "Select UserID, UserName from Users where Email = ?";
+        String query = "Select UserName from Users where Email = ?";
         PreparedStatement consulta = null;
         ResultSet resultadotabla = null;
         String nombre = "";
-        int id = 0;
-        
+                
         try{
             consulta = conn.prepareStatement(query);
             consulta.setString(1, user);
             resultadotabla = consulta.executeQuery();
-            id = resultadotabla.getInt(1);
-            nombre = resultadotabla.getString(2);
+            nombre = resultadotabla.getString(1);
             
         } catch (SQLException e) {
             Logger.getLogger(Connect.class.getName()).log(Level.SEVERE, null, e);
         }
         
-        return id + ". " + nombre.toUpperCase();
+        return nombre.toUpperCase();
     }
     
     public int retornarID(String user){
@@ -130,6 +128,49 @@ public class Connect {
             }
             else{
                 System.out.println(Console_Colors.ANSI_GREEN + "Datos Guardados" + Console_Colors.ANSI_RESET);
+            }
+            
+        } catch (SQLException e) {
+            Logger.getLogger(Connect.class.getName()).log(Level.SEVERE, null, e);
+        }
+        finally {
+            try {
+                if (consulta != null) {
+                    consulta.close();
+                }
+                if (conn != null) {
+                    disconnectDB(conn);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    public void insertarEvento( String nombreEvento, String descripcionEvento, String fechaEvento, String ubicacionEvento, String horaInicio, String horaFin, int userID){
+        
+        conn = connectDB();
+        String query = "Insert into Events(EventName, Description, Date, Location, StartTime, EndTime, UserID)" +
+                "Values(?, ?, ?, ?, ?, ?, ?)";
+        PreparedStatement consulta = null;
+        
+        try{
+            consulta = conn.prepareStatement(query);
+            consulta.setString(1, nombreEvento);
+            consulta.setString(2, descripcionEvento);
+            consulta.setString(3, fechaEvento);
+            consulta.setString(4, ubicacionEvento);
+            consulta.setString(5, horaInicio);
+            consulta.setString(6, horaFin);
+            consulta.setInt(7, userID);
+            
+            boolean resultado = consulta.execute();
+            
+            if (resultado) {
+                System.out.println(Console_Colors.ANSI_RED + "**SE PRODUJO UN ERROR AL INTENTAR GUARDAR EL EVENTO" + Console_Colors.ANSI_RESET);
+            }
+            else{
+                System.out.println(Console_Colors.ANSI_GREEN + "Evento ha sido guardado" + Console_Colors.ANSI_RESET);
             }
             
         } catch (SQLException e) {
