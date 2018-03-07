@@ -5,23 +5,16 @@
  */
 package proyecto_agenda;
 
-import java.util.InputMismatchException;
-import java.util.Scanner;
-
 /**
  *
  * @author pc HP
  */
 public class Prints {
     
-    Scanner sc = new Scanner(System.in);
-    private int option = 0, option2 = 0;
-    private int reset = 0;
-
     public Prints() {
     }
     
-    public static void printHeader(){
+    public static void imprimirHeader(){
         System.out.println(Console_Colors.ANSI_BLUE + ":::::::::::::::::::::::::::::::::::::AGENDA ELECTRÓNICA:::::::::::::::::::::::::::::::::::::" + Console_Colors.ANSI_RESET);
         System.out.println("............................................................................................");
         System.out.println("");
@@ -39,7 +32,7 @@ public class Prints {
         System.out.println("");
     }
     
-    public static void printMenu(){
+    public static void imprimirMenuPrincipal(){
         System.out.println("------------------------------------------");
         System.out.println("--------------MENU PRINCIPAL--------------");
         System.out.println("1. Ingresar Eventos");
@@ -49,31 +42,7 @@ public class Prints {
         System.out.print("Elija una opcion >>");
     }
     
-    public int catchError(){
-        try{
-                option = sc.nextInt();
-                
-            }catch(InputMismatchException e){
-                System.out.println();
-                System.out.println(Console_Colors.ANSI_RED + "Por favor ingrese un numero entero" + Console_Colors.ANSI_RESET);
-                sc.next();
-                option=reset;
-            }
-    return option;    
-    }
-    
-    public static void printCero(){
-        System.out.println("                                            →Intenta de nuevo");
-    }
-    
-    public static void printOutOfMenu(int option){
-        System.out.println();
-        System.out.println(Console_Colors.ANSI_RED + "Error: " + option + " no es una opcion del Menu." + Console_Colors.ANSI_RESET);
-        System.out.println("                                            →Intenta de nuevo");
-        System.out.println();
-    }
-    
-    public static void printEventsMenu(){
+    public static void imprimirMenuEventos(){
         System.out.println();
         System.out.println(Console_Colors.ANSI_PURPLE + "VER EVENTOS" + Console_Colors.ANSI_RESET);
         System.out.println("..............................");
@@ -85,9 +54,22 @@ public class Prints {
         System.out.print("Elija una opcion del Menu >>");
     }
     
-    public int askDate(){
-        System.out.print("Favor ingrese una fecha >>");
-        int date = sc.nextInt();
-        return date;
+    public String completarMes (int seqMonth){
+        String nuevoMes = null;
+        
+        if (seqMonth == 1) nuevoMes = "Enero";
+        else if (seqMonth == 2) nuevoMes = "Febrero";
+        else if (seqMonth == 3) nuevoMes = "Marzo";
+        else if (seqMonth == 4) nuevoMes = "Abril";
+        else if (seqMonth == 5) nuevoMes = "Mayo";
+        else if (seqMonth == 6) nuevoMes = "Junio";
+        else if (seqMonth == 7) nuevoMes = "Julio";
+        else if (seqMonth == 8) nuevoMes = "Agosto";
+        else if (seqMonth == 9) nuevoMes = "Septiembre";
+        else if (seqMonth == 10) nuevoMes = "Octubre";
+        else if (seqMonth == 11) nuevoMes = "Noviembre";
+        else if (seqMonth == 12) nuevoMes = "Diciembre";
+        
+        return nuevoMes;
     }
 }
