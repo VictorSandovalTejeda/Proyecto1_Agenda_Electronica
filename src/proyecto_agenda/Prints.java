@@ -5,6 +5,9 @@
  */
 package proyecto_agenda;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  *
  * @author pc HP
@@ -43,15 +46,14 @@ public class Prints {
     }
     
     public static void imprimirMenuEventos(){
-        System.out.println();
-        System.out.println(Console_Colors.ANSI_PURPLE + "VER EVENTOS" + Console_Colors.ANSI_RESET);
-        System.out.println("..............................");
-        System.out.println("1. Eventos mas cercanos:");
+        System.out.println("..........................................");        
+        System.out.println("...............MENU EVENTOS...............");
+        System.out.println("1. Proximos Eventos");
         System.out.println("2. Eventos por DÍA");
         System.out.println("3. Eventos por MES");
         System.out.println("4. ← Atras");
-        System.out.println("..............................");
-        System.out.print("Elija una opcion del Menu >>");
+        System.out.println("..........................................");
+        System.out.print("Elija una opcion >>");
     }
     
     public String completarMes (int seqMonth){
@@ -71,5 +73,14 @@ public class Prints {
         else if (seqMonth == 12) nuevoMes = "Diciembre";
         
         return nuevoMes;
+    }
+    
+    public boolean validateEmail(String user){
+        
+        String emailRegex = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$";
+        Pattern emailPat = Pattern.compile(emailRegex, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = emailPat.matcher(user);
+        
+        return matcher.find();
     }
 }

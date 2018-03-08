@@ -49,7 +49,7 @@ public class Connect {
     public boolean validarUsuario(String user){
         
         conn = connectDB();
-        String query = " Select Email from  Users";
+        String query = " Select Email from  Users;";
         PreparedStatement consulta = null;
         ResultSet resultadotabla = null;
         
@@ -64,6 +64,18 @@ public class Connect {
         } catch (SQLException e) {
             Logger.getLogger(Connect.class.getName()).log(Level.SEVERE, null, e);
         }
+        finally {
+            try {
+                if (consulta != null) {
+                    consulta.close();
+                }
+                if (conn != null) {
+                    disconnectDB(conn);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
         
         return false;
     }
@@ -71,7 +83,7 @@ public class Connect {
     public String retornarNombre(String user){
         
         conn = connectDB();
-        String query = "Select UserName from Users where Email = ?";
+        String query = "Select UserName from Users where Email = ?;";
         PreparedStatement consulta = null;
         ResultSet resultadotabla = null;
         String nombre = "";
@@ -85,6 +97,18 @@ public class Connect {
         } catch (SQLException e) {
             Logger.getLogger(Connect.class.getName()).log(Level.SEVERE, null, e);
         }
+        finally {
+            try {
+                if (consulta != null) {
+                    consulta.close();
+                }
+                if (conn != null) {
+                    disconnectDB(conn);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
         
         return nombre.toUpperCase();
     }
@@ -92,7 +116,7 @@ public class Connect {
     public int retornarID(String user){
         
         conn = connectDB();
-        String query = "Select UserID from Users where Email = ?";
+        String query = "Select UserID from Users where Email = ?;";
         PreparedStatement consulta = null;
         ResultSet resultadotabla = null;
         int id = 0;
@@ -106,6 +130,18 @@ public class Connect {
         } catch (SQLException e) {
             Logger.getLogger(Connect.class.getName()).log(Level.SEVERE, null, e);
         }
+        finally {
+            try {
+                if (consulta != null) {
+                    consulta.close();
+                }
+                if (conn != null) {
+                    disconnectDB(conn);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
         
         return id;
     }
@@ -113,7 +149,7 @@ public class Connect {
     public void insertarUsuario( String nombre, String correoElectronico){
         
         conn = connectDB();
-        String query = "Insert into Users(UserName, Email) Values(?, ?)";
+        String query = "Insert into Users(UserName, Email) Values(?, ?);";
         PreparedStatement consulta = null;
         
         try{
@@ -150,8 +186,7 @@ public class Connect {
     public void insertarEvento( String nombreEvento, String descripcionEvento, String fechaEvento, String ubicacionEvento, String horaInicio, String horaFin, int userID){
         
         conn = connectDB();
-        String query = "Insert into Events(EventName, Description, Date, Location, StartTime, EndTime, UserID)" +
-                "Values(?, ?, ?, ?, ?, ?, ?)";
+        String query = "Insert into Events(EventName, Description, Date, Location, StartTime, EndTime, UserID) Values(?,?,?,?,?,?,?)";
         PreparedStatement consulta = null;
         
         try{
@@ -190,4 +225,93 @@ public class Connect {
         }
     }
     
+    public void mostrarEventosRecientes(){
+        conn = connectDB();
+        String query = "Select a.EventName, a.Date, a.Description From Events a where a.date > date('now') order by Date asc Limit 3";
+        PreparedStatement consulta = null;
+        ResultSet resultadotabla = null;
+        try{
+            consulta = conn.prepareStatement(query);
+            resultadotabla = consulta.executeQuery();
+            System.out.printf(Console_Colors.ANSI_BLUE + "%-16s%-15s%-100s%n", "ID", "NOMBRE", "FECHA", "DESCRIPCION" + Console_Colors.ANSI_RESET);
+            while (resultadotabla.next()){
+                System.out.printf("%-16s%-15s%-100s%n", resultadotabla.getString(1), resultadotabla.getString(2), resultadotabla.getString(3));
+            }
+        } catch (SQLException e) {
+            Logger.getLogger(Connect.class.getName()).log(Level.SEVERE, null, e);
+        }
+        finally {
+            try {
+                if (consulta != null) {
+                    consulta.close();
+                }
+                if (conn != null) {
+                    disconnectDB(conn);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    public void mostrarEventosPorDia(String diaConsulta){
+        conn = connectDB();
+        String query = "Select a.EventID, a.EventName, a.Date, a.Description From Events a where a.date = ? order by EventID asc";
+        PreparedStatement consulta = null;
+        ResultSet resultadotabla = null;
+        try{
+            consulta = conn.prepareStatement(query);
+            consulta.setString(1, diaConsulta);
+            resultadotabla = consulta.executeQuery();
+            System.out.printf(Console_Colors.ANSI_BLUE + "%-4s%-16s%-15s%-100s%n","ID", "NOMBRE", "FECHA", "DESCRIPCION" + Console_Colors.ANSI_RESET);
+            while (resultadotabla.next()){
+                System.out.printf("%-4s%-16s%-15s%-100s%n", resultadotabla.getInt(1), resultadotabla.getString(2), resultadotabla.getString(3), resultadotabla.getString(4));
+            }
+        } catch (SQLException e) {
+            Logger.getLogger(Connect.class.getName()).log(Level.SEVERE, null, e);
+        }
+        finally {
+            try {
+                if (consulta != null) {
+                    consulta.close();
+                }
+                if (conn != null) {
+                    disconnectDB(conn);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    
+    public void mostrarEventosPorMes(String mesConsulta){
+        conn = connectDB();
+        String query = "Select a.EventID, a.EventName, a.Date, a.Description From Events a where strftime('%Y-%m', a.Date)= ? order by a.date";
+        PreparedStatement consulta = null;
+        ResultSet resultadotabla = null;
+        try{
+            consulta = conn.prepareStatement(query);
+            consulta.setString(1, mesConsulta);
+            resultadotabla = consulta.executeQuery();
+            System.out.printf(Console_Colors.ANSI_BLUE + "%-4s%-16s%-15s%-100s%n","ID", "NOMBRE", "FECHA", "DESCRIPCION" + Console_Colors.ANSI_RESET);
+            while (resultadotabla.next()){
+                System.out.printf("%-4s%-16s%-15s%-100s%n", resultadotabla.getInt(1), resultadotabla.getString(2), resultadotabla.getString(3), resultadotabla.getString(4));
+            }
+        } catch (SQLException e) {
+            Logger.getLogger(Connect.class.getName()).log(Level.SEVERE, null, e);
+        }
+        finally {
+            try {
+                if (consulta != null) {
+                    consulta.close();
+                }
+                if (conn != null) {
+                    disconnectDB(conn);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
