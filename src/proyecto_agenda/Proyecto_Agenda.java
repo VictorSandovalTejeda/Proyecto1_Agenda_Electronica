@@ -38,8 +38,8 @@ public class Proyecto_Agenda {
         String nombreEvento = "", descripcionEvento = "", fechaEvento = "", ubicacionEvento = "", horaInicio = "", horaFin = "";
         String notificar = "";//variable para saber si el usuario desea notificar a mas correos
         String[] arrayCorreos;
-        String continuar = "";
-        String diaConsulta = "", mesConsulta= "";
+        String continuar = "", crearUsuario = "";
+        String diaConsulta = "", mesConsulta = "";
         boolean dateValidation, timeValidation;
         int seq1 = 0, seq2 = 0, seq3 = 0, seq4 = 0;
         int seqYear = 0, seqMonth = 0, seqDay = 0;
@@ -53,7 +53,6 @@ public class Proyecto_Agenda {
         SendEmail sendEmail = new SendEmail();
         GregorianCalendar calendar = new GregorianCalendar();
 
-        
         Prints.imprimirHeader();
         do {
             try {
@@ -71,7 +70,7 @@ public class Proyecto_Agenda {
                                 Prints.imprimirMenuPrincipal();
                                 option2 = sc.nextInt();
 
-                                if (option2 >= 1 && option2 <= 3) {
+                                if (option2 >= 1 && option2 <= 4) {
                                     switch (option2) {
                                         case 1:
                                             System.out.println();
@@ -227,6 +226,7 @@ public class Proyecto_Agenda {
                                                         case 1:
                                                             System.out.println();
                                                             connect.mostrarEventosRecientes();
+                                                            System.out.println();
                                                             System.out.println("←Ingrese <R> para regresar");
                                                             continuar = sc.next();
                                                             break;
@@ -279,11 +279,12 @@ public class Proyecto_Agenda {
                                                                 }
                                                             } while (dateValidation != true);
                                                             connect.mostrarEventosPorDia(diaConsulta);
+                                                            System.out.println();
                                                             System.out.println("←Ingrese <R> para regresar");
                                                             continuar = sc.next();
                                                             break;
                                                         case 3:
-                                                            do{
+                                                            do {
                                                                 sc.nextLine();
                                                                 System.out.print("Ingrese Año y Mes (Ej: 2018-04) >>");
                                                                 mesConsulta = sc.nextLine();
@@ -300,8 +301,9 @@ public class Proyecto_Agenda {
                                                                         dateValidation = false;
                                                                     }
                                                                 }
-                                                            }while (dateValidation == false);
+                                                            } while (dateValidation == false);
                                                             connect.mostrarEventosPorMes(mesConsulta);
+                                                            System.out.println();
                                                             System.out.println("←Ingrese <R> para regresar");
                                                             continuar = sc.next();
                                                             break;
@@ -324,34 +326,55 @@ public class Proyecto_Agenda {
 
                             }
 
-                        } while (option2 != 3);
+                        } while (option2 != 3 && option2 != 4);
 
                     } else {
-                        System.out.println(Console_Colors.ANSI_RED + "**USUARIO NO EXISTE" + Console_Colors.ANSI_RESET);
-                        System.out.println("Ingrese su Nombre: ");
-                        System.out.print(">> ");
-                        nombre = sc.nextLine();
-                        int confirmacion = 0;
+                        int confirm = 0;
                         do {
-                            String respuesta = "";
-                            int salir = 0;
-
+                            System.out.println("**EL USUARIO NO EXISTE. Desea crear un nuevo Usuario? <SI>/<NO>");
+                            crearUsuario = sc.nextLine();
+                            if (crearUsuario.equalsIgnoreCase("SI") || crearUsuario.equalsIgnoreCase("NO")) {
+                                confirm = 1;
+                            } else {
+                                System.out.println(Console_Colors.ANSI_RED + "**RESPUESTA NO VALIDA" + Console_Colors.ANSI_RESET);
+                            }
+                        } while (confirm == 0);
+                        if (crearUsuario.equalsIgnoreCase("SI")) {
+                            System.out.println("Ingrese su Nombre: ");
+                            System.out.print(">> ");
+                            nombre = sc.nextLine();
+                            int confirmacion = 0;
                             do {
-                                System.out.println("¿Desea utilizar " + Console_Colors.ANSI_BLUE + user + Console_Colors.ANSI_RESET + " como su Correo Electrónico?  <SI>/<NO>");
-                                respuesta = sc.nextLine();
-                                if (respuesta.equalsIgnoreCase("SI") || respuesta.equalsIgnoreCase("NO")) {
-                                    salir = 1;
-                                } else {
-                                    System.out.println(Console_Colors.ANSI_RED + "**RESPUESTA NO VALIDA" + Console_Colors.ANSI_RESET);
-                                }
-                            } while (salir != 1);
-                            if (respuesta.equalsIgnoreCase("SI")) {
-                                correoElectronico = user;
-                            } else if (respuesta.equalsIgnoreCase("NO")) {
+                                String respuesta = "";
+                                int salir = 0;
+
                                 do {
-                                    System.out.println("Ingrese su Correo Electrónico: ");
-                                    System.out.print(">> ");
-                                    correoElectronico = sc.nextLine();
+                                    System.out.println("¿Desea utilizar " + Console_Colors.ANSI_BLUE + user + Console_Colors.ANSI_RESET + " como su Correo Electrónico?  <SI>/<NO>");
+                                    respuesta = sc.nextLine();
+                                    if (respuesta.equalsIgnoreCase("SI") || respuesta.equalsIgnoreCase("NO")) {
+                                        salir = 1;
+                                    } else {
+                                        System.out.println(Console_Colors.ANSI_RED + "**RESPUESTA NO VALIDA" + Console_Colors.ANSI_RESET);
+                                    }
+                                } while (salir != 1);
+                                if (respuesta.equalsIgnoreCase("SI")) {
+                                    correoElectronico = user;
+                                } else if (respuesta.equalsIgnoreCase("NO")) {
+                                    do {
+                                        System.out.println("Ingrese su Correo Electrónico: ");
+                                        System.out.print(">> ");
+                                        correoElectronico = sc.nextLine();
+                                        System.out.println("Confirme su Correo Electrónico: ");
+                                        System.out.print(">> ");
+                                        correoElectronico2 = sc.nextLine();
+                                        if (correoElectronico.equals(correoElectronico2)) {
+                                            confirmacion = 1;
+                                        } else {
+                                            System.out.println(Console_Colors.ANSI_RED + "**ERROR DE CONFIRMACIÓN" + Console_Colors.ANSI_RESET);
+                                        }
+                                    } while (confirmacion != 1);
+                                }
+                                if (confirmacion == 0) {
                                     System.out.println("Confirme su Correo Electrónico: ");
                                     System.out.print(">> ");
                                     correoElectronico2 = sc.nextLine();
@@ -360,35 +383,26 @@ public class Proyecto_Agenda {
                                     } else {
                                         System.out.println(Console_Colors.ANSI_RED + "**ERROR DE CONFIRMACIÓN" + Console_Colors.ANSI_RESET);
                                     }
-                                } while (confirmacion != 1);
-                            }
-                            if (confirmacion == 0) {
-                                System.out.println("Confirme su Correo Electrónico: ");
-                                System.out.print(">> ");
-                                correoElectronico2 = sc.nextLine();
-                                if (correoElectronico.equals(correoElectronico2)) {
-                                    confirmacion = 1;
-                                } else {
-                                    System.out.println(Console_Colors.ANSI_RED + "**ERROR DE CONFIRMACIÓN" + Console_Colors.ANSI_RESET);
                                 }
-                            }
-                        } while (confirmacion != 1);
-                        do {
-                            System.out.println("Ingrese <Y> para guardar o <N> para cancelar.");
-                            System.out.print(">> ");
-                            String guarda = sc.nextLine();
+                            } while (confirmacion != 1);
+                            do {
+                                System.out.println("Ingrese <Y> para guardar o <N> para cancelar.");
+                                System.out.print(">> ");
+                                String guarda = sc.nextLine();
 
-                            if (guarda.equalsIgnoreCase("Y")) {
-                                connect.insertarUsuario(nombre, correoElectronico); //Insert DB Tabla Users
-                                guardar = 1;
-                            } else if (guarda.equalsIgnoreCase("N")) {
-                                guardar = 1;
-                            } else {
-                                System.out.println(Console_Colors.ANSI_RED + "**RESPUESTA NO VALIDA" + Console_Colors.ANSI_RESET);
-                            }
+                                if (guarda.equalsIgnoreCase("Y")) {
+                                    connect.insertarUsuario(nombre, correoElectronico); //Insert DB Tabla Users
+                                    guardar = 1;
+                                } else if (guarda.equalsIgnoreCase("N")) {
+                                    guardar = 1;
+                                } else {
+                                    System.out.println(Console_Colors.ANSI_RED + "**RESPUESTA NO VALIDA" + Console_Colors.ANSI_RESET);
+                                }
 
-                        } while (guardar != 1);
+                            } while (guardar != 1);
+                        } else {
 
+                        }
                     }
                 } else {
                     System.out.println(Console_Colors.ANSI_RED + "**CORREO ELECTRÓNICO NO ES VALIDO" + Console_Colors.ANSI_RESET);
@@ -398,7 +412,8 @@ public class Proyecto_Agenda {
             } catch (InputMismatchException e) {
 
             }
-
+            System.out.println();
+            sc.nextLine();
         } while (option2 != 3);
     }
 }
