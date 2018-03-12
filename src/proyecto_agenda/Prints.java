@@ -5,9 +5,6 @@
  */
 package proyecto_agenda;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  *
  * @author pc HP
@@ -87,14 +84,5 @@ public class Prints {
         }
 
         return nuevoMes;
-    }
-
-    public boolean validateEmail(String user) {
-
-        String emailRegex = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$";
-        Pattern emailPat = Pattern.compile(emailRegex, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = emailPat.matcher(user);
-
-        return matcher.find();
     }
 }

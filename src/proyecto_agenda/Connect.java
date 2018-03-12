@@ -46,7 +46,6 @@ public class Connect {
         }
     }
 
-//FUNCIONES PARA TODO LOS TIPOS DE CONSULTAS QUE TENDRA MI PROYECTO
     public boolean validarUsuario(String user) {
 
         conn = connectDB();
@@ -219,18 +218,20 @@ public class Connect {
         }
     }
 
-    public void mostrarEventosRecientes() {
+    public void mostrarEventosRecientes(int userID) {
         conn = connectDB();
-        String query = "Select a.EventName, a.Date, a.StartTime, a.EndTime, a.Description From Events a where a.date > date('now') order by Date asc Limit 3";
+        String query = "Select a.EventName, a.Date, a.StartTime, a.EndTime, a.Description From Events a where a.date >= date('now') and a.UserID = ? order by Date asc Limit 3";
         PreparedStatement consulta = null;
         ResultSet resultadotabla = null;
         try {
             consulta = conn.prepareStatement(query);
+            consulta.setInt(1, userID);
             resultadotabla = consulta.executeQuery();
             System.out.printf(Console_Colors.ANSI_BLUE + "%-16s%-15s%-8s%-8s%-100s%n", "NOMBRE", "FECHA", "INICIO", "FIN", "DESCRIPCION" + Console_Colors.ANSI_RESET);
             while (resultadotabla.next()) {
                 System.out.printf("%-16s%-15s%-8s%-8s%-100s%n", resultadotabla.getString(1), resultadotabla.getString(2), resultadotabla.getString(3), resultadotabla.getString(4), resultadotabla.getString(5));
             }
+
         } catch (SQLException e) {
             Logger.getLogger(Connect.class.getName()).log(Level.SEVERE, null, e);
         } finally {
@@ -247,14 +248,14 @@ public class Connect {
         }
     }
 
-    public void mostrarEventosPorDia(String diaConsulta) {
+    public void mostrarEventosPorDia(int userID) {
         conn = connectDB();
-        String query = "Select a.EventID, a.EventName, a.Date, a.StartTime, a.EndTime, a.Description From Events a where a.date = ? order by EventID asc";
+        String query = "Select a.EventID, a.EventName, a.Date, a.StartTime, a.EndTime, a.Description From Events a where a.date = date('now') and a.UserID = ? order by EventID asc";
         PreparedStatement consulta = null;
         ResultSet resultadotabla = null;
         try {
             consulta = conn.prepareStatement(query);
-            consulta.setString(1, diaConsulta);
+            consulta.setInt(1, userID);
             resultadotabla = consulta.executeQuery();
             System.out.printf(Console_Colors.ANSI_BLUE + "%-4s%-16s%-15s%-8s%-8s%-100s%n", "ID", "NOMBRE", "FECHA", "INICIO", "FIN", "DESCRIPCION" + Console_Colors.ANSI_RESET);
             while (resultadotabla.next()) {
@@ -276,14 +277,15 @@ public class Connect {
         }
     }
 
-    public void mostrarEventosPorMes(String mesConsulta) {
+    public void mostrarEventosPorMes(String mesConsulta, int userID) {
         conn = connectDB();
-        String query = "Select a.EventID, a.EventName, a.Date, a.StartTime, a.EndTime, a.Description From Events a where strftime('%Y-%m', a.Date)= ? order by a.date";
+        String query = "Select a.EventID, a.EventName, a.Date, a.StartTime, a.EndTime, a.Description From Events a where a.date >= date('now') and strftime('%Y-%m', a.Date)= ? and a.UserID = ? order by a.date";
         PreparedStatement consulta = null;
         ResultSet resultadotabla = null;
         try {
             consulta = conn.prepareStatement(query);
             consulta.setString(1, mesConsulta);
+            consulta.setInt(2, userID);
             resultadotabla = consulta.executeQuery();
             System.out.printf(Console_Colors.ANSI_BLUE + "%-4s%-16s%-15s%-8s%-8s%-100s%n", "ID", "NOMBRE", "FECHA", "INICIO", "FIN", "DESCRIPCION" + Console_Colors.ANSI_RESET);
             while (resultadotabla.next()) {

@@ -34,7 +34,7 @@ public class Proyecto_Agenda {
         Scanner sc = new Scanner(System.in);
         String user = "";
         String nombre = "";
-        String correoElectronico = "", correoElectronico2 = "", correoNotificar = "", password = "";
+        String correoElectronico = "", correoElectronico2 = "", correoNotificar = "", cadenaCorreos = "";
         String nombreEvento = "", descripcionEvento = "", fechaEvento = "", ubicacionEvento = "", horaInicio = "", horaFin = "";
         String notificar = "";//variable para saber si el usuario desea notificar a mas correos
         String[] arrayCorreos;
@@ -50,7 +50,7 @@ public class Proyecto_Agenda {
         int userID = 0;
         Prints p = new Prints();
         Connect connect = new Connect();
-        SendEmail sendEmail = new SendEmail();
+        SendEmail email = new SendEmail();
         GregorianCalendar calendar = new GregorianCalendar();
 
         Prints.imprimirHeader();
@@ -60,7 +60,7 @@ public class Proyecto_Agenda {
                 System.out.println("Ingrese su Correo Electronico");
                 System.out.print(">> ");
                 user = sc.nextLine();
-                if (p.validateEmail(user) == true) {
+                if (email.validateEmail(user) == true) {
 
                     if (connect.validarUsuario(user)) { //**Funcion: Consulta DB - Select Email Tabla Users - Comparar cada linea del RS con mi varaible.
                         do {
@@ -186,33 +186,37 @@ public class Proyecto_Agenda {
                                             } while (timeValidation != true);
                                             System.out.println("El correo electrónico " + Console_Colors.ANSI_BLUE + user + Console_Colors.ANSI_RESET + " sera moderador del Evento.");
                                             userID = connect.retornarID(user);
-                                            System.out.println("Ingrese la contraseña de su correo:");
-                                            System.out.print(">> ");
-                                            password = sc.nextLine();
-                                            System.out.println("Desea notificar a alguien más via correo?  <SI>/<NO>");
-                                            notificar = sc.nextLine();
-                                            if (notificar.equalsIgnoreCase("NO")) {
-                                                connect.insertarEvento(nombreEvento, descripcionEvento, fechaEvento, ubicacionEvento, horaInicio, horaFin, userID);
-                                                sendEmail.send(user, password, user, nombreEvento, descripcionEvento);//FUNCION PARA ENVIAR CORREO
-                                            } else if (notificar.equalsIgnoreCase("SI")) {
-                                                connect.insertarEvento(nombreEvento, descripcionEvento, fechaEvento, ubicacionEvento, horaInicio, horaFin, userID);
-                                                System.out.println("A cuantos correos va a notificar?");
-                                                cantCorreos = sc.nextInt();
-                                                for (int i = 0; i < cantCorreos; i++) {
-                                                    int salir = 0;
-                                                    do {
-                                                        System.out.print(i + ". Ingrese Correo Electronico: ");
-                                                        correoNotificar = sc.nextLine();
-                                                        if (p.validateEmail(correoNotificar) == true) {
-                                                            sendEmail.send(user, password, correoNotificar, nombreEvento, descripcionEvento);
-                                                        } else {
-                                                            System.out.println(Console_Colors.ANSI_RED + "**CORREO ELECTRÓNICO NO ES VALIDO" + Console_Colors.ANSI_RESET);
-                                                            System.out.println();
-                                                            salir = 1;
-                                                        }
-                                                    } while (salir == 1);
-                                                }//FUNCION PARA ENVIAR VARIOS CORREOS
-                                            }
+                                            connect.insertarEvento(nombreEvento, descripcionEvento, fechaEvento, ubicacionEvento, horaInicio, horaFin, userID);
+                                            do {
+                                                System.out.println("Desea notificar a alguien más via correo?  <SI>/<NO>");
+                                                notificar = sc.nextLine();
+                                                if (notificar.equalsIgnoreCase("NO")) {
+                                                    email.sendEmail(user, nombreEvento, descripcionEvento);//FUNCION PARA ENVIAR CORREO
+                                                } else if (notificar.equalsIgnoreCase("SI")) {
+                                                    cadenaCorreos = user;
+                                                    System.out.println("A cuantos correos va a notificar?");
+                                                    cantCorreos = sc.nextInt();
+                                                    sc.nextLine();
+                                                    for (int i = 0; i < cantCorreos; i++) {
+                                                        int salir = 0;
+                                                        do {
+
+                                                            System.out.print(Console_Colors.ANSI_GREEN + (i + 1) + Console_Colors.ANSI_RESET + ". Ingrese Correo Electronico: ");
+                                                            correoNotificar = sc.nextLine();
+                                                            if (email.validateEmail(correoNotificar)) {
+                                                                cadenaCorreos = cadenaCorreos + "," + correoNotificar;
+                                                            } else {
+                                                                System.out.println(Console_Colors.ANSI_RED + "**CORREO ELECTRÓNICO NO ES VALIDO" + Console_Colors.ANSI_RESET);
+                                                                System.out.println();
+                                                                salir = 1;
+                                                            }
+                                                        } while (salir == 1);
+                                                    }
+                                                    email.sendEmail(cadenaCorreos, nombreEvento, descripcionEvento);
+                                                } else {
+                                                    System.out.println(Console_Colors.ANSI_RED + "**RESPUESTA NO VALIDA" + Console_Colors.ANSI_RESET);
+                                                }
+                                            } while (!notificar.equalsIgnoreCase("NO") && !notificar.equalsIgnoreCase("SI"));
                                             break;
                                         case 2:
                                             System.out.println();
@@ -225,84 +229,28 @@ public class Proyecto_Agenda {
                                                     switch (option3) {
                                                         case 1:
                                                             System.out.println();
-                                                            connect.mostrarEventosRecientes();
+                                                            userID = connect.retornarID(user);
+                                                            connect.mostrarEventosRecientes(userID);
                                                             System.out.println();
                                                             System.out.println("←Ingrese <R> para regresar");
                                                             continuar = sc.next();
                                                             break;
                                                         case 2:
-                                                            do {
-                                                                sc.nextLine();
-                                                                System.out.print("Ingrese un Día (Ej: 2018-04-25) >>");
-                                                                diaConsulta = sc.nextLine();
-                                                                dateValidation = diaConsulta.matches("\\d{4}-\\d{2}-\\d{2}");
-                                                                if (dateValidation == false) {
-                                                                    System.out.println(Console_Colors.ANSI_RED + "**FORMATO INCORRECTO" + Console_Colors.ANSI_RESET);
-                                                                } else {
-                                                                    seqYear = Integer.parseInt(diaConsulta.subSequence(0, 4).toString());
-                                                                    seqMonth = Integer.parseInt(diaConsulta.subSequence(5, 7).toString());
-                                                                    seqDay = Integer.parseInt(diaConsulta.subSequence(8, 10).toString());
-                                                                    year = calendar.get(Calendar.YEAR);
-                                                                    month = calendar.get(Calendar.MONTH);
-                                                                    day = calendar.get(Calendar.DATE);
-
-                                                                    if (seqYear < year || (seqYear == year && seqMonth < month) || (seqYear == year && seqMonth == month && seqDay < day)) {
-                                                                        System.out.println(Console_Colors.ANSI_RED + "**LA FECHA NO PUEDE SER MENOR AL ACTUAL" + Console_Colors.ANSI_RESET);
-                                                                        dateValidation = false;
-                                                                    } else if (seqMonth <= 0 || seqMonth > 12) {
-                                                                        System.out.println(Console_Colors.ANSI_RED + "**EL MES ESTA FUERA DE RANGO" + Console_Colors.ANSI_RESET);
-                                                                        dateValidation = false;
-                                                                    } else if (seqMonth == 1 || seqMonth == 3 || seqMonth == 5
-                                                                            || seqMonth == 7 || seqMonth == 8 || seqMonth == 10
-                                                                            || seqMonth == 12) {
-                                                                        if (seqDay < 1 || seqDay > 31) {
-                                                                            System.out.println("No hay " + seqDay + " dias en el mes de " + p.completarMes(seqMonth));
-                                                                            dateValidation = false;
-                                                                        }
-                                                                    } else if (seqMonth == 4 || seqMonth == 6 || seqMonth == 9
-                                                                            || seqMonth == 11) {
-                                                                        if (seqDay < 1 || seqDay > 30) {
-                                                                            System.out.println("No hay " + seqDay + " dias en el mes de " + p.completarMes(seqMonth));
-                                                                            dateValidation = false;
-                                                                        }
-                                                                    } else if (seqMonth == 2) {
-                                                                        if (seqDay == 29) {
-                                                                            if (calendar.isLeapYear(seqYear) == false) {
-                                                                                System.out.println("El año " + seqYear + " NO es bisiesto");
-                                                                                dateValidation = false;
-                                                                            }
-                                                                        } else if (seqDay > 29) {
-                                                                            System.out.println("No hay " + seqDay + " dias en el mes de " + p.completarMes(seqMonth));
-                                                                            dateValidation = false;
-                                                                        }
-                                                                    }
-                                                                }
-                                                            } while (dateValidation != true);
-                                                            connect.mostrarEventosPorDia(diaConsulta);
+                                                            sc.nextLine();
+                                                            System.out.println("Eventos del dia de hoy: " + Console_Colors.ANSI_PURPLE + calendar.get(Calendar.DAY_OF_MONTH) + "/" + p.completarMes(calendar.get(Calendar.MONTH)+1) + "/" + calendar.get(Calendar.YEAR) + Console_Colors.ANSI_RESET);
+                                                            userID = connect.retornarID(user);
+                                                            connect.mostrarEventosPorDia(userID);
                                                             System.out.println();
                                                             System.out.println("←Ingrese <R> para regresar");
                                                             continuar = sc.next();
                                                             break;
                                                         case 3:
-                                                            do {
-                                                                sc.nextLine();
-                                                                System.out.print("Ingrese Año y Mes (Ej: 2018-04) >>");
-                                                                mesConsulta = sc.nextLine();
-                                                                dateValidation = mesConsulta.matches("\\d{4}-\\d{2}");
-                                                                if (dateValidation == false) {
-                                                                    System.out.println(Console_Colors.ANSI_RED + "**FORMATO INCORRECTO" + Console_Colors.ANSI_RESET);
-                                                                } else {
-                                                                    seqYear = Integer.parseInt(mesConsulta.subSequence(0, 4).toString());
-                                                                    seqMonth = Integer.parseInt(mesConsulta.subSequence(5, 7).toString());
-                                                                    year = calendar.get(Calendar.YEAR);
-                                                                    month = calendar.get(Calendar.MONTH);
-                                                                    if (seqMonth <= 0 || seqMonth > 12) {
-                                                                        System.out.println(Console_Colors.ANSI_RED + "**EL MES ESTA FUERA DE RANGO" + Console_Colors.ANSI_RESET);
-                                                                        dateValidation = false;
-                                                                    }
-                                                                }
-                                                            } while (dateValidation == false);
-                                                            connect.mostrarEventosPorMes(mesConsulta);
+
+                                                            sc.nextLine();
+                                                            System.out.println("Eventos del mes de: " + Console_Colors.ANSI_PURPLE + p.completarMes(calendar.get(Calendar.MONTH)+1).toUpperCase() + Console_Colors.ANSI_RESET);
+                                                            mesConsulta = Integer.toString(calendar.get(Calendar.YEAR)) + "-" + Integer.toString(calendar.get(Calendar.MONTH));
+                                                            userID = connect.retornarID(user);
+                                                            connect.mostrarEventosPorMes(mesConsulta, userID);
                                                             System.out.println();
                                                             System.out.println("←Ingrese <R> para regresar");
                                                             continuar = sc.next();
@@ -327,7 +275,7 @@ public class Proyecto_Agenda {
                             }
 
                         } while (option2 != 3 && option2 != 4);
-
+                        sc.nextLine();
                     } else {
                         int confirm = 0;
                         do {
@@ -359,6 +307,7 @@ public class Proyecto_Agenda {
                                 } while (salir != 1);
                                 if (respuesta.equalsIgnoreCase("SI")) {
                                     correoElectronico = user;
+                                    confirmacion = 1;
                                 } else if (respuesta.equalsIgnoreCase("NO")) {
                                     do {
                                         System.out.println("Ingrese su Correo Electrónico: ");
@@ -373,16 +322,6 @@ public class Proyecto_Agenda {
                                             System.out.println(Console_Colors.ANSI_RED + "**ERROR DE CONFIRMACIÓN" + Console_Colors.ANSI_RESET);
                                         }
                                     } while (confirmacion != 1);
-                                }
-                                if (confirmacion == 0) {
-                                    System.out.println("Confirme su Correo Electrónico: ");
-                                    System.out.print(">> ");
-                                    correoElectronico2 = sc.nextLine();
-                                    if (correoElectronico.equals(correoElectronico2)) {
-                                        confirmacion = 1;
-                                    } else {
-                                        System.out.println(Console_Colors.ANSI_RED + "**ERROR DE CONFIRMACIÓN" + Console_Colors.ANSI_RESET);
-                                    }
                                 }
                             } while (confirmacion != 1);
                             do {
@@ -406,14 +345,13 @@ public class Proyecto_Agenda {
                     }
                 } else {
                     System.out.println(Console_Colors.ANSI_RED + "**CORREO ELECTRÓNICO NO ES VALIDO" + Console_Colors.ANSI_RESET);
-                    System.out.println();
                 }
 
             } catch (InputMismatchException e) {
 
             }
             System.out.println();
-            sc.nextLine();
+
         } while (option2 != 3);
     }
 }
