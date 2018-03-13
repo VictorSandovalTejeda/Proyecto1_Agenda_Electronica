@@ -32,14 +32,13 @@ public class Proyecto_Agenda {
         // TODO code application logic here        
 
         Scanner sc = new Scanner(System.in);
-        String user = "";
-        String nombre = "";
-        String correoElectronico = "", correoElectronico2 = "", correoNotificar = "", cadenaCorreos = "";
-        String nombreEvento = "", descripcionEvento = "", fechaEvento = "", ubicacionEvento = "", horaInicio = "", horaFin = "";
-        String notificar = "";//variable para saber si el usuario desea notificar a mas correos
-        String[] arrayCorreos;
+        String user;
+        String nombre;
+        String correoElectronico = null, correoElectronico2, correoNotificar, cadenaCorreos;
+        String nombreEvento = "", descripcionEvento = "", fechaEvento = "", ubicacionEvento, horaInicio = "", horaFin = "";
+        String notificar;//variable para saber si el usuario desea notificar a mas correos
         String continuar = "", crearUsuario = "";
-        String diaConsulta = "", mesConsulta = "";
+        String  mesConsulta;
         boolean dateValidation, timeValidation;
         int seq1 = 0, seq2 = 0, seq3 = 0, seq4 = 0;
         int seqYear = 0, seqMonth = 0, seqDay = 0;
@@ -62,7 +61,7 @@ public class Proyecto_Agenda {
                 user = sc.nextLine();
                 if (email.validateEmail(user) == true) {
 
-                    if (connect.validarUsuario(user)) { //**Funcion: Consulta DB - Select Email Tabla Users - Comparar cada linea del RS con mi varaible.
+                    if (connect.validarUsuario(user)) {
                         do {
                             try {
                                 System.out.println();
